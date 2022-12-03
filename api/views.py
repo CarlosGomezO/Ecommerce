@@ -19,6 +19,13 @@ def cart (request):
     return render(request, 'store/cart.html', context )
 
 def checkout (request):
-    context = {}
+    if request.user.is_authenticated:
+        customer = request.user.customer #onetoone authentication conected from Customer to Order as foreingkey
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        items = order.orderitem_set.all()
+    else:
+        items = []
+        order = {'get_cart_total':0 , 'get_cart_items':0} #We set this variables for no login users 
+    context = {'items': items, 'order': order} 
     return render(request, 'store/checkout.html', context )
 
